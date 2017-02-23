@@ -8,7 +8,7 @@ from configparser import ConfigParser
 from flask import Flask, request
 import telegram
 from telegram.ext import Updater, ChosenInlineResultHandler
-from telegram.ext import CommandHandler, InlineQueryHandler
+from telegram.ext import CommandHandler, CallbackQueryHandler, InlineQueryHandler
 
 import cmd
 
@@ -39,6 +39,8 @@ updater = Updater(TOKEN)
 dp = updater.dispatcher
 dp.add_handler(CommandHandler("start", cmd.start))
 dp.add_handler(CommandHandler("help", cmd.help))
+dp.add_handler(CommandHandler("xxoo", cmd.xxoo))
+dp.add_handler(CallbackQueryHandler(cmd.callback_query))
 dp.add_handler(InlineQueryHandler(cmd.inline_query))
 dp.add_handler(ChosenInlineResultHandler(cmd.collect_feedback))
 dp.add_error_handler(cmd.error)

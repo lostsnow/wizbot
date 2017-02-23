@@ -4,7 +4,8 @@ import requests
 import os
 import logging
 from datetime import datetime
-from telegram import InlineQueryResultLocation, InlineQueryResultArticle, InputTextMessageContent, ParseMode
+from telegram import InlineQueryResultLocation, InlineQueryResultArticle, ParseMode, \
+    InputTextMessageContent, InlineKeyboardButton, InlineKeyboardMarkup
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,24 @@ def start(bot, update):
     text = '*start*'
     bot.sendMessage(update.message.chat_id, text=text,
         parse_mode=ParseMode.MARKDOWN)
+
+def xxoo(bot, update):
+    buttons = [InlineKeyboardButton('refresh', callback_data='refresh')]
+    update.message.reply_text('xxoo', reply_markup=InlineKeyboardMarkup([buttons]))
+
+def callback_query(bot, update):
+    query = update.callback_query
+    # main menu
+    if query.data == 'refresh':
+        refresh(bot, query)
+
+def refresh(bot, update):
+    text = "ooxx " + str(datetime.now())
+    buttons = [InlineKeyboardButton('refresh', callback_data='refresh')]
+    bot.editMessageText(chat_id=update.message.chat_id,
+        message_id=update.message.message_id,
+        text=text,
+        reply_markup=InlineKeyboardMarkup([buttons]))
 
 def inline_query(bot, update):
     query = update.inline_query.query.strip()
@@ -67,7 +86,7 @@ def collect_feedback(bot, update):
     chosen_query = update.chosen_inline_result.query.strip()
     result_id = update.chosen_inline_result.result_id.strip()
     user_id = update.chosen_inline_result.from_user.id
-    date_time = str(datetime.utcnow())
+    date_time = str(datetime.now())
     fout = 'logs/feedback.log'
     with open(fout, 'a') as f:
         f.write(date_time + ',' + str(user_id) + ',' + result_id +
