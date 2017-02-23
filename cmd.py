@@ -2,7 +2,9 @@
 
 import requests
 import os
+import json
 import logging
+import time
 from datetime import datetime
 from telegram import InlineQueryResultLocation, InlineQueryResultArticle, ParseMode, \
     InputTextMessageContent, InlineKeyboardButton, InlineKeyboardMarkup
@@ -21,18 +23,25 @@ def start(bot, update):
         parse_mode=ParseMode.MARKDOWN)
 
 def xxoo(bot, update):
-    buttons = [InlineKeyboardButton('refresh', callback_data='refresh')]
-    update.message.reply_text('xxoo', reply_markup=InlineKeyboardMarkup([buttons]))
+    id = time.time()
+    buttons = [InlineKeyboardButton('refresh', callback_data=json.dumps({"type": "refresh", "id": id}))]
+    bot.sendMessage(update.message.chat_id, text="xxoo {}".format(id) ,
+        reply_markup=InlineKeyboardMarkup([buttons]),
+        parse_mode=ParseMode.MARKDOWN)
 
 def callback_query(bot, update):
     query = update.callback_query
-    # main menu
-    if query.data == 'refresh':
-        refresh(bot, query)
 
-def refresh(bot, update):
-    text = "ooxx " + str(datetime.now())
-    buttons = [InlineKeyboardButton('refresh', callback_data='refresh')]
+    data = json.loads(query.data)
+    print(data)
+    # main menu
+    if data["type"] == "refresh":
+        refresh(bot, query, data)
+
+def refresh(bot, update, data):
+    print(data)
+    text = "ooxx {}\n{}".format(data["id"], str(datetime.now()))
+    buttons = [InlineKeyboardButton('refresh', callback_data=json.dumps({"type": "refresh", "id": data["id"]}))]
     bot.editMessageText(chat_id=update.message.chat_id,
         message_id=update.message.message_id,
         text=text,
@@ -51,7 +60,7 @@ def inline_query(bot, update):
 
     data = [
         {
-            "identifier": 1,
+            "identifier": "inline_1",
             "latitude": 22.301015,
             "longitude": 114.171766,
             "title": "老夫子",
@@ -60,7 +69,7 @@ def inline_query(bot, update):
                 parse_mode=ParseMode.MARKDOWN)
         },
         {
-            "identifier": 2,
+            "identifier": "inline_2",
             "latitude": 39.902933,
             "longitude": 116.504286,
             "title": "黑狮子",
